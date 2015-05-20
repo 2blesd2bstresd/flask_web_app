@@ -1,0 +1,162 @@
+{% extends "_base.html" %}
+{% block content %}
+
+<h1>Welcome to Dartkey</h1>
+<br>
+<a href="/logout">Logout</a>
+<div class="add-task">
+  <h3>Create a new Dartkey:</h3>
+      <form action="{{ url_for('spotkeys.create_spotkey') }}" method="post" enctype="multipart/form-data">
+      {{ spotkey_form.csrf_token }}
+      <p>
+      {{ spotkey_form.name(placeholder="address") }}&nbsp;&nbsp;
+      {{ spotkey_form.longitude(placeholder="longitude") }}&nbsp;&nbsp; 
+      {{ spotkey_form.latitude(placeholder="latitude") }}&nbsp;&nbsp;
+      </p>
+      <p>
+      {{ spotkey_form.city(placeholder="city") }}&nbsp;&nbsp;
+      {{ spotkey_form.state(placeholder="state") }}&nbsp;&nbsp;
+      {{ spotkey_form.zipcode(placeholder="zip code") }}&nbsp;&nbsp; 
+      </p>
+      <p>
+      {{ spotkey_form.floor(placeholder="floor") }}&nbsp;&nbsp;
+      {{ spotkey_form.door_number(placeholder="door number") }}&nbsp;&nbsp;
+      {{ spotkey_form.buzzer_code(placeholder="buzzer_code") }}&nbsp;&nbsp;
+      </p>
+      <p>
+      {{ spotkey_form.details(placeholder="description") }}&nbsp;&nbsp;
+      Dart Type: {{ spotkey_form.location_type(placeholder="Home") }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      Chain {{ spotkey_form.chain_id(placeholder="None") }}
+
+      </p>
+      {{ spotkey_form.image }}
+      </p><br/>
+      <p><input class="btn btn-default" type="submit" value="Submit"></p>
+    </form>
+</div>
+
+<div class="add-task">
+  <br/>
+  <h3>Add a dart:      </h3>
+    <form action="{{ url_for('spotkeys.add_spot') }}" method="post" enctype="multipart/form-data">
+      {{ spot_form.csrf_token }}
+      <p>
+      {{ spot_form.spotkey_id }} &nbsp;&nbsp;
+      </p>
+      <p>
+      {{ spot_form.latitude(placeholder="latitude") }}&nbsp;&nbsp;
+      {{ spot_form.longitude(placeholder="longitude") }}&nbsp;&nbsp;
+      Requires Navigation:&nbsp;&nbsp; {{ spotkey_form.requires_navigation(placeholder="disabled") }}
+      </p>
+      <p>
+      {{ spot_form.details(placeholder="description") }}&nbsp;&nbsp;
+      {{ spot_form.transport_type(placeholder="transport type") }}
+
+      </p>
+
+      {{ spot_form.image }}
+      </p><br/>
+      <p><input class="btn btn-default" type="submit" value="Submit"></p>
+    </form>
+</div>
+
+<div class="entries">
+  <br>
+  <br>
+  <h2>Inactive Dartkeys:</h2>
+  <div class="datagrid">
+    <table>
+      <thead>
+        <tr>
+          <th width="200px"><strong>Address</strong></th>
+          <th width="100px"><strong>Longitude</strong></th>
+          <th width="100px"><strong>Latitude</strong></th>
+          <th width="100px"><strong>Primary Image</strong></th>
+          <th width="100px"><strong># of Spots</strong></th>
+          <th width="100px"><strong>Daisy-chain ID</strong></th>
+          <th><strong>Actions</strong></th>
+        </tr>
+      </thead>
+      {% for sk in inactive_spotkeys %}
+        <tr>
+          <td>{{ sk['spotkey'].name }}</td>
+          <td>{{ sk['spotkey'].primary_spot().longitude }}</td>
+          <td>{{ sk['spotkey'].primary_spot().latitude }}</td>
+          <td><a href={{ sk['spotkey'].primary_spot().picture_url }}>Download</a></td>
+          <td>{{ sk['spot_count'] }}</td>
+          <td>{{ sk['spotkey'].chain_id}}
+          <td>
+              <a href="{{ url_for('spotkeys.delete', spotkey_id = sk['spotkey'].id) }}">Delete</a>  -
+              <a href="{{ url_for('spotkeys.activate', spotkey_id = sk['spotkey'].id) }}">Activate</a>
+            {% else %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<br>
+<br>
+<div class="entries">
+  <h2>Active Dartkeys:</h2>
+  <div class="datagrid">
+    <table>
+      <thead>
+        <tr>
+          <th width="200px"><strong>Address</strong></th>
+          <th width="100px"><strong>Longitude</strong></th>
+          <th width="100px"><strong>Latitude</strong></th>
+          <th width="100px"><strong>Primary Image</strong></th>
+          <th width="100px"><strong># of Spots</strong></th>
+          <th width="100px"><strong>Daisy-chain ID</strong></th>
+          <th><strong>Actions</strong></th>
+        </tr>
+      </thead>
+      {% for sk in active_spotkeys %}
+        <tr>
+          <td>{{ sk['spotkey'].name }}</td>
+          <td>{{ sk['spotkey'].primary_spot().longitude }}</td>
+          <td>{{ sk['spotkey'].primary_spot().latitude }}</td>
+          <td><a href={{ sk['spotkey'].primary_spot().picture_url }}>Download</a></td>
+          <td>{{ sk['spot_count'] }}</td>
+          <td>{{ sk['spotkey'].chain_id}}
+          <td>
+              <a href="{{ url_for('spotkeys.deactivate', spotkey_id = sk['spotkey'].id) }}">Deactivate</a>
+            {% else %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<br/>
+<br/>
+<div class="entries">
+  <h2>Inactive Spots:</h2>
+  <div class="datagrid">
+    <table>
+      <thead>
+        <tr>
+          <th width="500px"><strong>Description</strong></th>
+          <th width="100px"><strong>Transport Type</strong></th>
+          <th width="100px"><strong>Spotkey ID</strong></th>
+          <th><strong>Actions</strong></th>
+        </tr>
+      </thead>
+      {% for sk in inactive_spotkeys %}
+        {% for sp in sk['spots'] %}
+        <tr>
+          <td>{{ sp.details }}</td>
+          <td>{{ sp.transport_type }}</td>
+          <td>{{ sp.spotkey_id }}</td>
+          <td>
+              <a href="{{ url_for('spotkeys.delete_spot', spot_id = sp.id) }}">Delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock %}
